@@ -12,6 +12,48 @@ def sunscreen_experiment():
     "expected",
     [
         {
+            "time": "07/03/2024 23:01",
+            "output": "00:00:34 : Initialization protocol: Successfully completed | 00:00:34 : Initialization protocol: Input 1 Stack: Sample Pump: State set to Idle | 00:00:34 : Initialization protocol: Input 1 Stack: System Pump: State set to Idle | 00:00:34 : Initialization protocol: Input 2 Stack: Sample Pump: State set to Idle | 00:00:34 : Initialization protocol: Input 2 Stack: System Pump: State set to Idle | 00:00:34 : Initialization protocol: Collection Stack: Sample Pump: State set to Idle | 00:00:34 : Initialization protocol: Collection Stack: System Pump: State set to Idle | 00:00:34 : Sunscreen Experimental Protocol: Starting... | 00:00:34 : Sunscreen Experimental Protocol: Input 1 well plate definition assigned IST Scientific 2.2 ml Round Bottom (7206088) | 00:00:34 : Sunscreen Experimental Protocol: Input 2 well plate definition assigned IST Scientific 2.2 ml Round Bottom (7206088) | 00:00:34 : Sunscreen Experimental Protocol: Collection well plate definition assigned IST Scientific 2.2 ml Round Bottom (7206088)",
+            "pressure": {
+                "Fluid Handler 1 | system current pressure | (bar)": "-0.1",
+                "Fluid Handler 2 | system current pressure | (bar)": "0",
+                "Fluid Handler 3 | system current pressure | (bar)": "-0.1",
+            },
+            "row_number": 2,
+        }
+    ],
+)
+def test_first_log_line(sunscreen_experiment, expected):
+    assert sunscreen_experiment.logs[0] == expected
+
+
+def test_correct_number_of_keys(sunscreen_experiment):
+    assert len(sunscreen_experiment.experiments.keys()) == 24
+
+
+@pytest.mark.parametrize(
+    "expected",
+    [
+        {
+            "time": "07/03/2024 23:03",
+            "output": "00:02:16 : Exp01: C: Collection Stack - Collection preparation completed | 00:02:16 : Exp01: preparation completed | 00:02:16 : Exp01: run | 00:02:16 : Exp01: D-1: Input 1 Stack - Starting Sample pre-pressurisation | 00:02:16 : Exp01: D-2: Input 2 Stack - Starting Sample pre-pressurisation",
+            "pressure": {
+                "Fluid Handler 1 | system current pressure | (bar)": "-0.1",
+                "Fluid Handler 2 | system current pressure | (bar)": "0",
+                "Fluid Handler 3 | system current pressure | (bar)": "-0.1",
+            },
+            "row_number": 103,
+        }
+    ],
+)
+def test_correct_first_experiment_line(sunscreen_experiment, expected):
+    assert sunscreen_experiment.experiments["01"][0] == expected
+
+
+@pytest.mark.parametrize(
+    "expected",
+    [
+        {
             "01": {
                 "Fluid Handler 1 | system current pressure | (bar)": 0.2,
                 "Fluid Handler 2 | system current pressure | (bar)": 0.3,
