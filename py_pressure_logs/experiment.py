@@ -155,6 +155,35 @@ class Experiment(ABC):
         self.wash_summaries = wash_summary
         return wash_summary
 
+    def output_data(self):
+        """A crude implementation to output data from the experiment run"""
+        experiment_summaries = self.summarise_experiments()
+
+        headers = ["Experiment Number"]
+        for pump_key in self.logs[0][self.PRESSURE_KEY].keys():
+            headers.append(pump_key)
+
+        data = [headers]
+
+        for experiment_number, experiment_summary in experiment_summaries.items():
+            row_data = [experiment_number]
+            for peak_pressure in experiment_summary.values():
+                row_data.append(peak_pressure)
+
+            data.append(row_data)
+
+        wash_summaries = self.summarise_washes()
+        for wash_number, wash_summary in wash_summaries.items():
+            row_data = [f"{wash_number}-wash"]
+            for peak_pressure in wash_summary.values():
+                row_data.append(peak_pressure)
+
+            data.append(row_data)
+
+        with open("output.csv", mode="w", newline="") as file:
+            writer = csv.writer(file)
+            writer.writerows(data)
+
     @abstractmethod
     def select_experiment_keys(self, row):
         """Experiment specific transformation function to extract important values"""
