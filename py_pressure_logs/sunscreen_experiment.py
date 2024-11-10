@@ -3,10 +3,11 @@ import py_pressure_logs.regex_utils as regex_utils
 from py_pressure_logs.experiment import Experiment
 
 
-class SunshineExperiment(Experiment):
+class SunscreenExperiment(Experiment):
+    experiment_start_pattern = r"exp(\d+): run \|"
 
     def is_pressure_field(self, header):
-        pattern = r".*(\d+).*current pressure.*"
+        pattern = r"system current pressure"
         return regex_utils.regex_match(pattern, header, ignore_case=True)
 
     def select_experiment_keys(self, row):
@@ -22,8 +23,7 @@ class SunshineExperiment(Experiment):
 
     def get_experiment_number_from_start_row(self, row):
         row_output = row[self.OUTPUT_KEY]
-        pattern = r".*Experiment (\d+):.*Experiment Preparation Begun"
-        match = re.search(pattern, row_output, re.IGNORECASE)
+        match = re.search(self.experiment_start_pattern, row_output, re.IGNORECASE)
 
         if match:
             return match.group(1)
@@ -32,10 +32,11 @@ class SunshineExperiment(Experiment):
 
     def is_start_of_experiment(self, row):
         row_output = row[self.OUTPUT_KEY]
-        pattern = r".*Experiment \d+:.*Experiment Preparation Begun"
-        return regex_utils.regex_match(pattern, row_output, ignore_case=True)
+        return regex_utils.regex_match(
+            self.experiment_start_pattern, row_output, ignore_case=True
+        )
 
     def is_end_of_experiment(self, row):
         row_output = row[self.OUTPUT_KEY]
-        pattern = r"Experiment run completed"
+        pattern = r"Exp\d+: Run is completed"
         return regex_utils.regex_match(pattern, row_output, ignore_case=True)
