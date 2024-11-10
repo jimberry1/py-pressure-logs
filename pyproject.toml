@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "py-pressure-logs"
+version = "0.1.0"
+description = ""
+authors = ["jim.berry <jim.berry@signal-ai.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12.5"
+
+
+[tool.poetry.group.dev.dependencies]
+ipython = "^8.29.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
