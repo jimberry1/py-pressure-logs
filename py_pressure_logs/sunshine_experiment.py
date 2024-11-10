@@ -39,3 +39,29 @@ class SunshineExperiment(Experiment):
         row_output = row[self.OUTPUT_KEY]
         pattern = r"Experiment run completed"
         return regex_utils.regex_match(pattern, row_output, ignore_case=True)
+
+    def is_start_of_wash(self, row):
+        row_output = row[self.OUTPUT_KEY]
+        pattern = (
+            r"Cleaning: Washing started|Pressure Check: B All experiments completed"
+        )
+        return regex_utils.regex_match(pattern, row_output, ignore_case=True)
+
+    def is_end_of_wash(self, row):
+        row_output = row[self.OUTPUT_KEY]
+        pattern = (
+            r"Protocol\s*b-4 system cleaning: completed|Sample Loop Cleaning: Completed"
+        )
+        return regex_utils.regex_match(pattern, row_output, ignore_case=True)
+
+    def get_wash_experiment_number(self, logs_for_wash):
+        first_row_output = logs_for_wash[0][self.OUTPUT_KEY]
+        pattern = r"Experiment (\d+):"
+        match = re.search(pattern, first_row_output, re.IGNORECASE)
+
+        if match:
+            return match.group(1)
+        else:
+            raise Exception(
+                f"no experiment number found for wash row {first_row_output}"
+            )

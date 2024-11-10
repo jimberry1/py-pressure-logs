@@ -13,28 +13,14 @@ class Experiment(ABC):
 
     logs: List[Dict[str, str]]
     experiments: Dict[str, Dict]
-    summary: Dict[str, Dict]
+    washes: Dict[str, Dict]
+    experiment_summaries: Dict[str, Dict]
+    wash_summaries: Dict[str, Dict]
 
     def __init__(self, file_path):
         self.logs = self.parse_csv(file_path)
         self.experiments = self.extract_experiments(self.logs)
-
-    def summarise_experiment(self):
-        """Given the logs for an experiment, calculates the maximum pressure values for each pump"""
-
-        experiment_summary = {}
-        for experiment_number, experiment_logs in self.experiments.items():
-
-            grouped_values = defaultdict(list)
-            for log_line in experiment_logs:
-                for pump_key, pressure_value in log_line[self.PRESSURE_KEY].items():
-                    grouped_values[pump_key].append(float(pressure_value))
-
-            max_values = {key: max(values) for key, values in grouped_values.items()}
-            experiment_summary[experiment_number] = max_values
-
-        self.summary = experiment_summary
-        return experiment_summary
+        self.washes = self.extract_washes(self.logs)
 
     def is_time_field(self, header):
         pattern = r"time"
@@ -110,6 +96,65 @@ class Experiment(ABC):
 
         return grouped_experiment_logs
 
+    def extract_washes(self, logs):
+        """Iterates through the logs for the experimental run, extracting those relevant
+        to washes and grouping in an associative structure."""
+        log_iterator = iter(logs)
+        grouped_wash_logs = {}
+        try:
+            while True:
+                logs_from_wash_start = dropwhile(
+                    lambda row: not self.is_start_of_wash(row), log_iterator
+                )
+                wash_logs = list(
+                    takewhile(
+                        lambda row: not self.is_end_of_wash(row), logs_from_wash_start
+                    )
+                )
+
+                if not wash_logs or len(wash_logs) == 0:
+                    break
+
+                experiment_number = self.get_wash_experiment_number(wash_logs)
+                grouped_wash_logs[experiment_number] = wash_logs
+
+        except StopIteration:
+            print("The experimental logs have been exhausted")
+
+        return grouped_wash_logs
+
+    def summarise_experiments(self):
+        """Given the logs for an experiment, calculates the maximum pressure values for each pump"""
+        experiment_summary = {}
+        for experiment_number, experiment_logs in self.experiments.items():
+
+            grouped_values = defaultdict(list)
+            for log_line in experiment_logs:
+                for pump_key, pressure_value in log_line[self.PRESSURE_KEY].items():
+                    grouped_values[pump_key].append(float(pressure_value))
+
+            max_values = {key: max(values) for key, values in grouped_values.items()}
+            experiment_summary[experiment_number] = max_values
+
+        self.experiment_summaries = experiment_summary
+        return experiment_summary
+
+    def summarise_washes(self):
+        """Given the logs for a wash, calculates the maximum pressure values for each pump"""
+        wash_summary = {}
+        for experiment_number, wash_logs in self.washes.items():
+
+            grouped_values = defaultdict(list)
+            for log_line in wash_logs:
+                for pump_key, pressure_value in log_line[self.PRESSURE_KEY].items():
+                    grouped_values[pump_key].append(float(pressure_value))
+
+            max_values = {key: max(values) for key, values in grouped_values.items()}
+            wash_summary[experiment_number] = max_values
+
+        self.wash_summaries = wash_summary
+        return wash_summary
+
     @abstractmethod
     def select_experiment_keys(self, row):
         """Experiment specific transformation function to extract important values"""
@@ -129,3 +174,16 @@ class Experiment(ABC):
     def is_end_of_experiment(self, row):
         """Experiment specific regex match function to identify whether a row marks the end of an experiment"""
         pass
+
+    @abstractmethod
+    def is_start_of_wash(self, row):
+        """Experiment specific regex match function to identify whether a row marks the start of a wash"""
+        pass
+
+    @abstractmethod
+    def is_end_of_wash(self, row):
+        """Experiment specific regex match funnction to identify whether a row marks the end of a wash"""
+
+    @abstractmethod
+    def get_wash_experiment_number(self, logs_for_wash):
+        """Experiment specific regex match function to return the experiment number from the logs for the wash"""

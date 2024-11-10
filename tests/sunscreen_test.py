@@ -135,5 +135,136 @@ def sunscreen_experiment():
         }
     ],
 )
-def test_happy_path(sunscreen_experiment, expected):
-    assert sunscreen_experiment.summarise_experiment() == expected
+def test_experiments_summary(sunscreen_experiment, expected):
+    assert sunscreen_experiment.summarise_experiments() == expected
+
+
+@pytest.mark.parametrize(
+    "expected",
+    [
+        {
+            "01": {
+                "Fluid Handler 1 | system current pressure | (bar)": 1.0,
+                "Fluid Handler 2 | system current pressure | (bar)": 1.1,
+                "Fluid Handler 3 | system current pressure | (bar)": 0.2,
+            },
+            "02": {
+                "Fluid Handler 1 | system current pressure | (bar)": 1.0,
+                "Fluid Handler 2 | system current pressure | (bar)": 1.0,
+                "Fluid Handler 3 | system current pressure | (bar)": 0.3,
+            },
+            "03": {
+                "Fluid Handler 1 | system current pressure | (bar)": 1.0,
+                "Fluid Handler 2 | system current pressure | (bar)": 1.1,
+                "Fluid Handler 3 | system current pressure | (bar)": 0.3,
+            },
+            "04": {
+                "Fluid Handler 1 | system current pressure | (bar)": 1.1,
+                "Fluid Handler 2 | system current pressure | (bar)": 1.1,
+                "Fluid Handler 3 | system current pressure | (bar)": 0.3,
+            },
+            "05": {
+                "Fluid Handler 1 | system current pressure | (bar)": 1.0,
+                "Fluid Handler 2 | system current pressure | (bar)": 1.1,
+                "Fluid Handler 3 | system current pressure | (bar)": 0.3,
+            },
+            "06": {
+                "Fluid Handler 1 | system current pressure | (bar)": 1.1,
+                "Fluid Handler 2 | system current pressure | (bar)": 1.0,
+                "Fluid Handler 3 | system current pressure | (bar)": 0.3,
+            },
+            "07": {
+                "Fluid Handler 1 | system current pressure | (bar)": 1.0,
+                "Fluid Handler 2 | system current pressure | (bar)": 1.0,
+                "Fluid Handler 3 | system current pressure | (bar)": 0.4,
+            },
+            "08": {
+                "Fluid Handler 1 | system current pressure | (bar)": 1.0,
+                "Fluid Handler 2 | system current pressure | (bar)": 1.0,
+                "Fluid Handler 3 | system current pressure | (bar)": 0.4,
+            },
+            "09": {
+                "Fluid Handler 1 | system current pressure | (bar)": 0.9,
+                "Fluid Handler 2 | system current pressure | (bar)": 0.8,
+                "Fluid Handler 3 | system current pressure | (bar)": 0.2,
+            },
+            "10": {
+                "Fluid Handler 1 | system current pressure | (bar)": 1.0,
+                "Fluid Handler 2 | system current pressure | (bar)": 0.9,
+                "Fluid Handler 3 | system current pressure | (bar)": 0.4,
+            },
+            "11": {
+                "Fluid Handler 1 | system current pressure | (bar)": 1.0,
+                "Fluid Handler 2 | system current pressure | (bar)": 1.1,
+                "Fluid Handler 3 | system current pressure | (bar)": 0.4,
+            },
+            "12": {
+                "Fluid Handler 1 | system current pressure | (bar)": 1.1,
+                "Fluid Handler 2 | system current pressure | (bar)": 1.1,
+                "Fluid Handler 3 | system current pressure | (bar)": 0.4,
+            },
+            "13": {
+                "Fluid Handler 1 | system current pressure | (bar)": 0.9,
+                "Fluid Handler 2 | system current pressure | (bar)": 0.9,
+                "Fluid Handler 3 | system current pressure | (bar)": 0.4,
+            },
+            "14": {
+                "Fluid Handler 1 | system current pressure | (bar)": 1.0,
+                "Fluid Handler 2 | system current pressure | (bar)": 0.9,
+                "Fluid Handler 3 | system current pressure | (bar)": 0.4,
+            },
+            "15": {
+                "Fluid Handler 1 | system current pressure | (bar)": 1.0,
+                "Fluid Handler 2 | system current pressure | (bar)": 0.9,
+                "Fluid Handler 3 | system current pressure | (bar)": 0.4,
+            },
+            "16": {
+                "Fluid Handler 1 | system current pressure | (bar)": 1.0,
+                "Fluid Handler 2 | system current pressure | (bar)": 0.9,
+                "Fluid Handler 3 | system current pressure | (bar)": 0.4,
+            },
+            "17": {
+                "Fluid Handler 1 | system current pressure | (bar)": 1.0,
+                "Fluid Handler 2 | system current pressure | (bar)": 1.0,
+                "Fluid Handler 3 | system current pressure | (bar)": 0.4,
+            },
+            "18": {
+                "Fluid Handler 1 | system current pressure | (bar)": 0.9,
+                "Fluid Handler 2 | system current pressure | (bar)": 1.0,
+                "Fluid Handler 3 | system current pressure | (bar)": 0.4,
+            },
+            "19": {
+                "Fluid Handler 1 | system current pressure | (bar)": 1.0,
+                "Fluid Handler 2 | system current pressure | (bar)": 1.0,
+                "Fluid Handler 3 | system current pressure | (bar)": 0.4,
+            },
+            "20": {
+                "Fluid Handler 1 | system current pressure | (bar)": 1.0,
+                "Fluid Handler 2 | system current pressure | (bar)": 1.1,
+                "Fluid Handler 3 | system current pressure | (bar)": 0.4,
+            },
+            "21": {
+                "Fluid Handler 1 | system current pressure | (bar)": 1.0,
+                "Fluid Handler 2 | system current pressure | (bar)": 0.9,
+                "Fluid Handler 3 | system current pressure | (bar)": 0.4,
+            },
+            "22": {
+                "Fluid Handler 1 | system current pressure | (bar)": 0.9,
+                "Fluid Handler 2 | system current pressure | (bar)": 1.0,
+                "Fluid Handler 3 | system current pressure | (bar)": 0.4,
+            },
+            "23": {
+                "Fluid Handler 1 | system current pressure | (bar)": 1.0,
+                "Fluid Handler 2 | system current pressure | (bar)": 0.8,
+                "Fluid Handler 3 | system current pressure | (bar)": 0.4,
+            },
+            "24": {
+                "Fluid Handler 1 | system current pressure | (bar)": 1.0,
+                "Fluid Handler 2 | system current pressure | (bar)": 0.9,
+                "Fluid Handler 3 | system current pressure | (bar)": 0.4,
+            },
+        }
+    ],
+)
+def test_wash_summary(sunscreen_experiment, expected):
+    assert sunscreen_experiment.summarise_washes() == expected
