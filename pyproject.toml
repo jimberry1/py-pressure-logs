@@ -6,12 +6,13 @@ authors = ["jim.berry <jim.berry@signal-ai.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.12.5"
+python = ">=3.12,<3.14"
 
 
 [tool.poetry.group.dev.dependencies]
 ipython = "^8.29.0"
 pytest = "^8.3.3"
+pyinstaller = "^6.11.1"
 
 [build-system]
 requires = ["poetry-core"]

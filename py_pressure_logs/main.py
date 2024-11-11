@@ -6,4 +6,6 @@ if __name__ == "__main__":
 
     experiment_protocol = exp.SunshineExperiment(file_path)
 
-    summary = experiment_protocol.summarise_experiment()
+    summary = experiment_protocol.summarise_experiments()
+
+    experiment_protocol.output_data()
