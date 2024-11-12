@@ -155,29 +155,47 @@ class Experiment(ABC):
         self.wash_summaries = wash_summary
         return wash_summary
 
-    def output_data(self):
+    def _create_output_headers(self):
+        """Creates the header row of the output csv dynamically from the pressure pump names"""
+        headers = ["Experiment Number"]
+        pump_names = [
+            f"Maximum {pump_name}"
+            for pump_name in self.logs[0][self.PRESSURE_KEY].keys()
+        ]
+        headers.extend(pump_names)
+        headers.extend(["Start row number", "End row number"])
+        return headers
+
+    def _create_output_row(self, experiment_number, summary, name_override=None):
+        """Transforms inputs into a single csv row to be output"""
+        experiment_name = name_override if name_override else experiment_number
+        row_data = [experiment_name]
+
+        pump_max_pressures = [
+            pump_max_pressure for pump_max_pressure in summary.values()
+        ]
+        row_data.extend(pump_max_pressures)
+        row_data.append(self.experiments[experiment_number][0]["row_number"])
+        row_data.append(self.experiments[experiment_number][-1]["row_number"])
+        return row_data
+
+    def output_csv(self):
         """A crude implementation to output data from the experiment run"""
         experiment_summaries = self.summarise_experiments()
 
-        headers = ["Experiment Number"]
-        for pump_key in self.logs[0][self.PRESSURE_KEY].keys():
-            headers.append(pump_key)
-
+        headers = self._create_output_headers()
         data = [headers]
 
         for experiment_number, experiment_summary in experiment_summaries.items():
-            row_data = [experiment_number]
-            for peak_pressure in experiment_summary.values():
-                row_data.append(peak_pressure)
-
+            row_data = self._create_output_row(experiment_number, experiment_summary)
             data.append(row_data)
 
         wash_summaries = self.summarise_washes()
         for wash_number, wash_summary in wash_summaries.items():
-            row_data = [f"{wash_number}-wash"]
-            for peak_pressure in wash_summary.values():
-                row_data.append(peak_pressure)
-
+            wash_name = f"{wash_number}-wash"
+            row_data = self._create_output_row(
+                wash_number, wash_summary, name_override=wash_name
+            )
             data.append(row_data)
 
         with open("output.csv", mode="w", newline="") as file:

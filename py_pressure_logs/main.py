@@ -8,4 +8,4 @@ if __name__ == "__main__":
 
     summary = experiment_protocol.summarise_experiments()
 
-    experiment_protocol.output_data()
+    experiment_protocol.output_csv()
