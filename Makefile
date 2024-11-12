@@ -8,11 +8,11 @@ build-clear:
 
 .PHONY: build-windows
 build-windows:
-	poetry run pyinstaller --onefile --distpath dist/windows py_pressure_logs/main.py
+	poetry run pyinstaller --onefile --distpath dist/windows --name=py_pressure_logs py_pressure_logs/main.py
 
 .PHONY: build-mac
 build-mac:
-	poetry run pyinstaller --onefile --distpath dist/mac py_pressure_logs/main.py
+	poetry run pyinstaller --onefile --distpath dist/mac --name=py_pressure_logs py_pressure_logs/main.py
 
 .PHONY: run-dev
 run-dev:

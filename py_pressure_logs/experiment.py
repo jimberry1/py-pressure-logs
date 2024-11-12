@@ -179,7 +179,7 @@ class Experiment(ABC):
         row_data.append(self.experiments[experiment_number][-1]["row_number"])
         return row_data
 
-    def output_csv(self):
+    def output_csv(self, output_filename="output"):
         """A crude implementation to output data from the experiment run"""
         experiment_summaries = self.summarise_experiments()
 
@@ -198,7 +198,7 @@ class Experiment(ABC):
             )
             data.append(row_data)
 
-        with open("output.csv", mode="w", newline="") as file:
+        with open(f"{output_filename}.csv", mode="w", newline="") as file:
             writer = csv.writer(file)
             writer.writerows(data)
 
