@@ -29,3 +29,7 @@ run-windows:
 .PHONY: test
 test:
 	poetry run pytest
+
+.PHONY: run-app
+run-app:
+	streamlit run py_pressure_logs/app.py
