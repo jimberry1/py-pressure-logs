@@ -10,6 +10,7 @@ class Experiment(ABC):
     TIME_KEY = "time"
     PRESSURE_KEY = "pressure"
     OUTPUT_KEY = "output"
+    ROW_NUMBER = "row_number"
 
     logs: List[Dict[str, str]]
     experiments: Dict[str, Dict]
@@ -17,8 +18,12 @@ class Experiment(ABC):
     experiment_summaries: Dict[str, Dict]
     wash_summaries: Dict[str, Dict]
 
-    def __init__(self, file_path):
-        self.logs = self.parse_csv(file_path)
+    def __init__(self, file_path, *, file_contents=None):
+        self.logs = (
+            self.parse_csv(file_path)
+            if not file_contents
+            else self.parse_unstructured_file_rows(file_contents)
+        )
         self.experiments = self.extract_experiments(self.logs)
         self.washes = self.extract_washes(self.logs)
 
@@ -43,6 +48,22 @@ class Experiment(ABC):
                 continue
         return formatted_row
 
+    def transform_row(self, row, row_number):
+        """Transforms a row from raw data to the desired rows with standardised names"""
+        return {
+            **self.select_common_keys(row),
+            **self.select_experiment_keys(row),
+            self.ROW_NUMBER: row_number,
+        }
+
+    def parse_unstructured_file_rows(self, rows):
+        """In the event that data is preloaded, instead of being opened with a file path,
+        transforms rows into structured logs."""
+        return [
+            self.transform_row(row, row_number)
+            for row_number, row in enumerate(rows, start=1)
+        ]
+
     def parse_csv(self, file_path):
         """
         Parses a CSV file, renames headers, and selects specific keys.
@@ -56,11 +77,7 @@ class Experiment(ABC):
             reader = csv.DictReader(csvfile)
 
             parsed_data = [
-                {
-                    **self.select_common_keys(row),
-                    **self.select_experiment_keys(row),
-                    "row_number": row_number,
-                }
+                self.transform_row(row, row_number)
                 for row_number, row in enumerate(reader, start=2)
             ]
 

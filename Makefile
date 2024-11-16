@@ -25,3 +25,7 @@ run-mac:
 .PHONY: run-windows
 run-windows:
 	./dist/windows/main
+
+.PHONY: test
+test:
+	poetry run pytest
