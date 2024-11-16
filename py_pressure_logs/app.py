@@ -1,6 +1,8 @@
 import streamlit as st
 import pandas as pd
 from py_pressure_logs.sunshine_experiment import SunshineExperiment
+import plotly.express as px
+from st_aggrid import AgGrid, GridOptionsBuilder
 
 FILE_CONTENTS_KEY = "file_contents"
 
@@ -38,13 +40,27 @@ def main():
             # Create DataFrame
             new_df = pd.DataFrame(data, columns=headers)
 
+            gb = GridOptionsBuilder.from_dataframe(new_df)
+            gb.configure_selection("single")  # Enable single row selection
+            grid_options = gb.build()
+
             # Display the table in Streamlit
             st.write("### Summary:")
-            st.dataframe(new_df)
+            grid_response = AgGrid(
+                new_df,
+                gridOptions=grid_options,
+                height=200,
+                theme="streamlit",
+                enable_enterprise_modules=False,
+            )
 
-            # # Display additional statistics or visualizations if needed
-            # st.write("### Data Summary:")
-            # st.write(df.describe())
+            # Check if a row is selected
+            selected_row = grid_response["selected_rows"]
+            print(f"data to dict {selected_row.to_dict()} exp {selected_row.to_dict()["Experiment Number"]}")
+            if selected_row:
+                experiment_number = selected_row.to_dict()["Experiment Number"]
+                print(f"this is the experiment number {experiment_number}")
+
         except Exception as e:
             st.error(f"Error reading the CSV file: {e}")
 
