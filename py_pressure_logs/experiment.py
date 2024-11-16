@@ -21,7 +21,7 @@ class Experiment(ABC):
     def __init__(self, file_path, *, file_contents=None):
         self.logs = (
             self.parse_csv(file_path)
-            if not file_contents
+            if file_path
             else self.parse_unstructured_file_rows(file_contents)
         )
         self.experiments = self.extract_experiments(self.logs)
@@ -196,8 +196,7 @@ class Experiment(ABC):
         row_data.append(self.experiments[experiment_number][-1]["row_number"])
         return row_data
 
-    def output_csv(self, output_filename="output"):
-        """A crude implementation to output data from the experiment run"""
+    def output_summary(self):
         experiment_summaries = self.summarise_experiments()
 
         headers = self._create_output_headers()
@@ -215,6 +214,11 @@ class Experiment(ABC):
             )
             data.append(row_data)
 
+        return data
+
+    def output_csv(self, output_filename="output"):
+        """A crude implementation to output data from the experiment run"""
+        data = self.output_summary()
         with open(f"{output_filename}.csv", mode="w", newline="") as file:
             writer = csv.writer(file)
             writer.writerows(data)
