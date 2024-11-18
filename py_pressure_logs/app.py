@@ -1,25 +1,40 @@
 import streamlit as st
 import pandas as pd
 from py_pressure_logs.sunshine_experiment import SunshineExperiment
-import plotly.express as px
-from st_aggrid import AgGrid, GridOptionsBuilder
+from py_pressure_logs.sunscreen_experiment import SunscreenExperiment
+import re
+from py_pressure_logs.regex_utils import regex_match
+import py_pressure_logs.vis as vis
 
-FILE_CONTENTS_KEY = "file_contents"
+PROTOCOL_NAME = "file_contents"
+SUNSHINE_PROTOCOL_NAME = "sunshine"
+SUNSCREEN_PROTOCOL_NAME = "sunscreen"
 
 
 def main():
+    st.session_state[PROTOCOL_NAME] = None
+    # Options with a placeholder
+    options = [
+        "Select one",
+        SUNSHINE_PROTOCOL_NAME,
+        SUNSCREEN_PROTOCOL_NAME,
+    ]
+
+    # Create the selectbox
+    selected_option = st.selectbox("Choose an option:", options)
+
+    # Check if a valid option is selected
+    if selected_option == "Select one":
+        st.write("Please select a valid option.")
+    else:
+        st.session_state[PROTOCOL_NAME] = selected_option
+
     st.title("CSV Viewer")
-
     st.write("Upload a CSV file to view its contents.")
-
     # File uploader
     uploaded_file = st.file_uploader("Choose a CSV file", type=["csv"])
 
-    # Check if `data` is already stored in session state
-    if FILE_CONTENTS_KEY not in st.session_state:
-        st.session_state[FILE_CONTENTS_KEY] = None  # Initialize it to None
-
-    if uploaded_file is not None:
+    if uploaded_file is not None and st.session_state[PROTOCOL_NAME]:
         try:
             # Read CSV into a DataFrame
             df = pd.read_csv(uploaded_file)
@@ -29,7 +44,11 @@ def main():
 
             data_as_dicts = df.to_dict(orient="records")
             # print(f"this is my data_as_dicts {data_as_dicts[0]}")
-            exp = SunshineExperiment(None, file_contents=data_as_dicts)
+            exp = (
+                SunscreenExperiment(None, file_contents=data_as_dicts)
+                if st.session_state[PROTOCOL_NAME] == SUNSCREEN_PROTOCOL_NAME
+                else SunshineExperiment(None, file_contents=data_as_dicts)
+            )
             data = exp.output_summary()
             # Convert back to DataFrame to display
 
@@ -40,26 +59,29 @@ def main():
             # Create DataFrame
             new_df = pd.DataFrame(data, columns=headers)
 
-            gb = GridOptionsBuilder.from_dataframe(new_df)
-            gb.configure_selection("single")  # Enable single row selection
-            grid_options = gb.build()
-
             # Display the table in Streamlit
             st.write("### Summary:")
-            grid_response = AgGrid(
-                new_df,
-                gridOptions=grid_options,
-                height=200,
-                theme="streamlit",
-                enable_enterprise_modules=False,
-            )
+            new_df
 
-            # Check if a row is selected
-            selected_row = grid_response["selected_rows"]
-            print(f"data to dict {selected_row.to_dict()} exp {selected_row.to_dict()["Experiment Number"]}")
-            if selected_row:
-                experiment_number = selected_row.to_dict()["Experiment Number"]
-                print(f"this is the experiment number {experiment_number}")
+            st.write("### Visualise:")
+            if st.button("Full Protocol", key="button-index-all"):
+                vis.visualise_experiment(exp.logs)
+            num_columns = 4
+            columns = st.columns(num_columns)  #
+            for i, row in new_df.iterrows():
+                exp_num_pattern = r"(\d+)"
+                exp_name = row["Experiment Number"]
+                exp_num = re.search(exp_num_pattern, row["Experiment Number"]).group(0)
+                col = columns[i % num_columns]
+                with col:
+                    if st.button(f"{exp_name}", key=f"button-index-{exp_name}"):
+                        is_wash = regex_match(r"wash", exp_name, ignore_case=True)
+                        logs = (
+                            exp.experiments[exp_num]
+                            if not is_wash
+                            else exp.washes[exp_num]
+                        )
+                        vis.visualise_experiment(logs)
 
         except Exception as e:
             st.error(f"Error reading the CSV file: {e}")
