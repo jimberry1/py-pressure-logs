@@ -19,8 +19,14 @@ The executable is eponymously named `py_pressure_logs`
 
 Once an executable has been downloaded or recreated, run:
 
+Mac
 ```
 py_pressure_logs sunshine path/to/log/file.csv
+```
+
+Windows
+```
+py_pressure_logs.exe sunshine path/to/log/file.csv
 ```
 
 Optionally, an name for the output csv can be specified via
