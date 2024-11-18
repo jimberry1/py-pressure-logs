@@ -21,7 +21,7 @@ def main():
     ]
 
     # Create the selectbox
-    selected_option = st.selectbox("Choose an option:", options)
+    selected_option = st.selectbox("Choose an experimental protocol:", options)
 
     # Check if a valid option is selected
     if selected_option == "Select one":
@@ -29,8 +29,10 @@ def main():
     else:
         st.session_state[PROTOCOL_NAME] = selected_option
 
-    st.title("CSV Viewer")
-    st.write("Upload a CSV file to view its contents.")
+    st.title("Logs Viewer")
+    st.write(
+        "Upload a CSV file from the Sunshine or Sunscreen protocol to view its contents."
+    )
     # File uploader
     uploaded_file = st.file_uploader("Choose a CSV file", type=["csv"])
 
@@ -38,7 +40,7 @@ def main():
         try:
             # Read CSV into a DataFrame
             df = pd.read_csv(uploaded_file)
-            st.write("### Input data:")
+            st.write("## All Logs")
             st.dataframe(df)
             df = df.astype(str)
 
@@ -60,10 +62,10 @@ def main():
             new_df = pd.DataFrame(data, columns=headers)
 
             # Display the table in Streamlit
-            st.write("### Summary:")
+            st.write("## Summarised Results:")
             new_df
 
-            st.write("### Visualise:")
+            st.write("## See Experimental Graphs:")
             if st.button("Full Protocol", key="button-index-all"):
                 vis.visualise_experiment(exp.logs)
             num_columns = 4
