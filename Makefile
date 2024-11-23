@@ -32,4 +32,4 @@ test:
 
 .PHONY: run-app
 run-app:
-	streamlit run py_pressure_logs/app.py
+	poetry run streamlit run py_pressure_logs/app.py
