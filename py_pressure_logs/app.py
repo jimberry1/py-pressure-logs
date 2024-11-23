@@ -5,6 +5,7 @@ from py_pressure_logs.sunscreen_experiment import SunscreenExperiment
 import re
 from py_pressure_logs.regex_utils import regex_match
 import py_pressure_logs.vis as vis
+import io
 
 PROTOCOL_NAME = "file_contents"
 SUNSHINE_PROTOCOL_NAME = "sunshine"
@@ -64,6 +65,19 @@ def main():
             # Display the table in Streamlit
             st.write("## Summarised Results:")
             new_df
+
+            # Convert DataFrame to CSV in memory
+            csv_buffer = io.StringIO()
+            new_df.to_csv(csv_buffer, index=False)
+            csv_data = csv_buffer.getvalue()
+            # Add a download button
+            st.write("Download the summary data as a CSV file:")
+            st.download_button(
+                label="Download Summary CSV",
+                data=csv_data,
+                file_name="py-pressure-logs-output.csv",
+                mime="text/csv",
+            )
 
             st.write("## See Experimental Graphs:")
             if st.button("Full Protocol", key="button-index-all"):
