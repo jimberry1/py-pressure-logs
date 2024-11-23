@@ -183,17 +183,26 @@ class Experiment(ABC):
         headers.extend(["Start row number", "End row number"])
         return headers
 
-    def _create_output_row(self, experiment_number, summary, name_override=None):
+    def _create_output_row(self, experiment_number, summary, is_wash=False):
         """Transforms inputs into a single csv row to be output"""
-        experiment_name = name_override if name_override else experiment_number
+        experiment_name = (
+            f"{experiment_number}-wash" if is_wash else f"{experiment_number}"
+        )
         row_data = [experiment_name]
 
         pump_max_pressures = [
             pump_max_pressure for pump_max_pressure in summary.values()
         ]
+
         row_data.extend(pump_max_pressures)
-        row_data.append(self.experiments[experiment_number][0]["row_number"])
-        row_data.append(self.experiments[experiment_number][-1]["row_number"])
+
+        log_lines = (
+            self.washes[experiment_number]
+            if is_wash
+            else self.experiments[experiment_number]
+        )
+        row_data.append(log_lines[0]["row_number"])
+        row_data.append(log_lines[-1]["row_number"])
         return row_data
 
     def output_summary(self):
@@ -208,10 +217,7 @@ class Experiment(ABC):
 
         wash_summaries = self.summarise_washes()
         for wash_number, wash_summary in wash_summaries.items():
-            wash_name = f"{wash_number}-wash"
-            row_data = self._create_output_row(
-                wash_number, wash_summary, name_override=wash_name
-            )
+            row_data = self._create_output_row(wash_number, wash_summary, is_wash=True)
             data.append(row_data)
 
         return data
